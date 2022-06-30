@@ -2,7 +2,7 @@ package models
 
 import "github.com/EzeRomanelli/bookings/internal/forms"
 
-// TemplateData holds dataset from handlers to templates
+// TemplateData holds data sent from handlers to templates
 type TemplateData struct {
 	StringMap map[string]string
 	IntMap    map[string]int

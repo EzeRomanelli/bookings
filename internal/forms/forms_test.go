@@ -8,22 +8,22 @@ import (
 )
 
 func TestForm_Valid(t *testing.T) {
-	r := httptest.NewRequest("POST", "/algo", nil)
+	r := httptest.NewRequest("POST", "/whatever", nil)
 	form := New(r.PostForm)
 
 	isValid := form.Valid()
 	if !isValid {
-		t.Error("Got invalid when should have been valid")
+		t.Error("got invalid when should have been valid")
 	}
 }
 
 func TestForm_Required(t *testing.T) {
-	r := httptest.NewRequest("POST", "/algo", nil)
+	r := httptest.NewRequest("POST", "/whatever", nil)
 	form := New(r.PostForm)
 
 	form.Required("a", "b", "c")
 	if form.Valid() {
-		t.Error("Form shows valid when required fields missing")
+		t.Error("form shows valid when required fields missing")
 	}
 
 	postedData := url.Values{}
@@ -31,95 +31,100 @@ func TestForm_Required(t *testing.T) {
 	postedData.Add("b", "a")
 	postedData.Add("c", "a")
 
-	r, _ = http.NewRequest("POST", "/algo", nil)
+	r, _ = http.NewRequest("POST", "/whatever", nil)
 
 	r.PostForm = postedData
 	form = New(r.PostForm)
 	form.Required("a", "b", "c")
 	if !form.Valid() {
-		t.Error("Its showing does not have required field when it does have them")
+		t.Error("shows does not have required fields when it does")
 	}
-
 }
 
 func TestForm_Has(t *testing.T) {
-	r := httptest.NewRequest("POST", "/algo", nil)
-	form := New(r.PostForm)
+	postedData := url.Values{}
+	form := New(url.Values{})
 
-	valid := form.Has("someField")
-	if valid {
-		t.Error("There is no such field")
+	has := form.Has("whatever")
+	if has {
+		t.Error("form shows has field when it does not")
 	}
 
-	r, _ = http.NewRequest("POST", "/algo", nil)
-
-	postedData := url.Values{}
+	postedData = url.Values{}
 	postedData.Add("a", "a")
 
-	r.PostForm = postedData
-	form = New(r.PostForm)
-
-	valid = form.Has("a")
-	if !valid {
-		t.Error("The field was present")
-	}
-}
-
-func TestForm_isEmail(t *testing.T) {
-
-	r := httptest.NewRequest("POST", "/algo", nil)
-	form := New(r.PostForm)
-
-	form.IsEmail("email")
-	if form.Valid() {
-		t.Error("The string entered was not an email so there should exist an error")
-	}
-
-	postedData := url.Values{}
-	postedData.Add("email", "test@123.com")
 	form = New(postedData)
 
-	form.IsEmail("email")
-	if !form.Valid() {
-		t.Error("The string entered was an email so there should not exist an error")
+	has = form.Has("a")
+	if !has {
+		t.Error("shows form does not have field when it should")
 	}
 }
 
 func TestForm_MinLength(t *testing.T) {
-	r := httptest.NewRequest("POST", "/algo", nil)
-	form := New(r.PostForm)
-
-	form.MinLenght("field1", 3)
-	if form.Valid() {
-		t.Error("The field didnt had more than 3 required characters, it should not be accepted")
-	}
-
-	isError := form.Errors.Get("field1")
-	if isError == "" {
-		t.Error("Should have an error but did not get one")
-	}
-
 	postedData := url.Values{}
-	postedData.Add("field1", "some_value")
-	form = New(postedData)
+	form := New(postedData)
 
-	form.MinLenght("field1", 100)
+	form.MinLength("x", 10)
 	if form.Valid() {
-		t.Error("The word didn't had 100 characters, it should not be accepted")
+		t.Error("form shows min length for non-existent field")
+	}
+
+	isError := form.Errors.Get("x")
+	if isError == "" {
+		t.Error("should have error but did not get one")
 	}
 
 	postedData = url.Values{}
-	postedData.Add("field2", "ezequiel")
+	postedData.Add("some_field", "some_value")
+
 	form = New(postedData)
 
-	form.MinLenght("field2", 3)
+	form.MinLength("some_field", 100)
+	if form.Valid() {
+		t.Error("shows min length of 100 met when data is shorter")
+	}
+
+	postedData = url.Values{}
+	postedData.Add("another_field", "abc123")
+	form = New(postedData)
+
+	form.MinLength("another_field", 1)
 	if !form.Valid() {
-		t.Error("The field had more than 3 required characters, it should not be rejected")
+		t.Error("shows min length if 1 is not met when it is")
 	}
 
-	isError = form.Errors.Get("field2")
+	isError = form.Errors.Get("another_field")
 	if isError != "" {
-		t.Error("Shouldn't have an error but got one")
+		t.Error("should not have error but got one")
 	}
 
+}
+
+func TestForm_IsEmail(t *testing.T) {
+	postedValues := url.Values{}
+	form := New(postedValues)
+
+	form.IsEmail("x")
+	if form.Valid() {
+		t.Error("form shows valid email for non-existent field")
+	}
+
+	postedValues = url.Values{}
+	postedValues.Add("email", "me@here.com")
+	form = New(postedValues)
+
+	form.IsEmail("email")
+	if !form.Valid() {
+		t.Error("got an invalid email when we should not have")
+	}
+
+	postedValues = url.Values{}
+	postedValues.Add("email", "x")
+	form = New(postedValues)
+
+	form.IsEmail("email")
+	if form.Valid() {
+		t.Error("got valid for invalid email address")
+	}
 }
