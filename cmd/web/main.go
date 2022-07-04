@@ -26,7 +26,7 @@ var errorLog *log.Logger
 
 // main is the main function
 func main() {
-	db, err := run()
+		db, err := run()
 	if err != nil {
 		log.Fatal(err)
 	}
