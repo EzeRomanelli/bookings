@@ -3,7 +3,7 @@ package repository
 import (
 	"time"
 
-	"github.com/EzeRomanelli/bookings/internal/models"
+	"github.com/eromanelli/bookings/internal/models"
 )
 
 type DatabaseRepo interface {
@@ -14,4 +14,6 @@ type DatabaseRepo interface {
 	SearchAvailabilityByDatesByRoomID(start, end time.Time, roomID int) (bool, error)
 	SearchAvailabilityForAllRooms(start, end time.Time) ([]models.Room, error)
 	GetRoomByID(id int) (models.Room, error)
+	UpdateUser(u models.User) error
+	Authenticate(email, testPassword string) (int, string, error)
 }

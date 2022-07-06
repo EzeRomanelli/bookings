@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/EzeRomanelli/bookings/internal/config"
-	"github.com/EzeRomanelli/bookings/internal/handlers"
+	"github.com/eromanelli/bookings/internal/config"
+	"github.com/eromanelli/bookings/internal/handlers"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 )
@@ -32,6 +32,8 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Get("/make-reservation", handlers.Repo.Reservation)
 	mux.Post("/make-reservation", handlers.Repo.PostReservation)
 	mux.Get("/reservation-summary", handlers.Repo.ReservationSummary)
+
+	mux.Get("/user/login", handlers.Repo.ShowLogin)
 
 	fileServer := http.FileServer(http.Dir("./static/"))
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))

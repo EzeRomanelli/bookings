@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"github.com/EzeRomanelli/bookings/internal/config"
+	"github.com/eromanelli/bookings/internal/config"
 )
 
 var app *config.AppConfig
